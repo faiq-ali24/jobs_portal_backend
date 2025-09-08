@@ -1,0 +1,68 @@
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Files that might appear on external disks
+.Spotlight-V100
+.Trashes
+.VolumeIcon.icns
+
+# Sublime Text project files
+*.sublime-project
+*.sublime-workspace
+
+# Rails specific
+/log/*
+!/log/.keep
+/tmp/*
+!/tmp/.keep
+/db/*.sqlite3
+/db/*.sqlite3-journal
+/public/system/*
+/public/uploads/*
+/coverage/
+/node_modules/
+/yarn-error.log
+.byebug_history
+.rspec
+
+# Environment files
+.env
+.env.*.local
+
+# Ruby specific
+*.gem
+*.rbc
+.bundle
+vendor/bundle
+vendor/cache
+vendor/ruby
+
+# Rails credentials & secrets
+/config/credentials.yml.enc
+/config/master.key
+
+# Byebug command history
+.byebug_history
+
+# Ignore all other tmp/pids files
+/tmp/pids/*
+!/tmp/pids/.keep
+
+# Ignore log files
+*.log
+
+# Ignore compiled assets
+/public/assets
+/public/packs
+/public/packs-test
+/node_modules
+/yarn-error.log
+/.eslintcache
+
+# Ignore coverage reports
+coverage/
