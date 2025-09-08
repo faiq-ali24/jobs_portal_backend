@@ -66,3 +66,9 @@ vendor/ruby
 
 # Ignore coverage reports
 coverage/
+
+/storage/*
+!/storage/.keep
+
+/test/*
+!/test/.keep
