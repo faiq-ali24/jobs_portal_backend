@@ -3,7 +3,7 @@ export const theme = {
     primary: "#4A90E2",
     secondary: "#50E3C2",
     text: "#333333",
-    lightText:  "#fafafa",
+    lightText: "#fafafa",
     background: "#fafafa",
     border: "#ccc",
     error: "#ff0000ff",
@@ -37,21 +37,25 @@ export const theme = {
     focusBorder: "#4A90E2",
     focusShadow: "0 0 0 2px rgba(74, 144, 226, 0.2)",
   },
-  display:{
+  display: {
     solid: "solid",
     flex: "flex",
     directionV: "column",
     directionR: "row",
     alignCenter: "center",
-    justifyContentCenter: "center", 
+    justifyContentCenter: "center",
     textAlignCenter: "center",
   },
-  heightWidth:{
+  heightWidth: {
     divHeightpx: "200px",
     divHeightper: "100%",
-    divWidht: "33%"
+    divWidht: "33%",
   },
-  searchWidth:{
-    mxWidth: "150px"
-  }
+  searchWidth: {
+    mxWidth: "150px",
+  },
+  header: {
+    // container: "container-fluid",
+    // color
+  },
 };

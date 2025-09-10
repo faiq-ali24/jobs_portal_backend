@@ -1,125 +1,49 @@
-import Input from "@mui/material/Input";
-import React, { useEffect, useState } from "react";
-import { makeStyles } from "tss-react/mui";
-import JobsFilter from "../molecules/jobsFilter";
-import JobsCard from "../molecules/jobsCard";
-import axios from "axios";
-import Pagination from "@mui/material/Pagination";
+import React from "react";
+import SummaryCard from "../molecules/summaryCard";
 import { useUser } from "../../context/userContext";
-import Cookies from "js-cookie";
-import { jobModel } from "../../interfaces/appInterface";
-import { convertJobsList } from "../../converter/modelConverter"; // adjust path
+import { CompanyApplication } from "../../converter/modelConverter";
 
-export const cities: string[] = ["Lahore", "Karachi", "Islamabad", "Multan", "Faisalabad", "Queta"];
-export const salaries: number[] = [100000, 300000, 500000];
+interface CompaniesHomeProps {
+  applications: CompanyApplication[];
+  subdomain: string;
+}
 
-const useStyles = makeStyles()(() => ({}));
-
-const JobsHome = () => {
-  const [location, setLocation] = useState<string>("");
-  const [salary, setSalary] = useState<number>(0);
-  const [title, setTitle] = useState<string>("");
-
-  const [jobs, setJobs] = useState<jobModel[]>([]);
-  const [page, setPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
-
-  const hostParts = window.location.hostname.split(".");
-  let subdomain: string | null = null;
-
-  if (hostParts.length > 2) {
-    const sub = hostParts[0];
-    if (sub) subdomain = sub;
-  }
-
+const CompaniesHome: React.FC<CompaniesHomeProps> = ({
+  applications,
+  subdomain,
+}) => {
   const { user } = useUser();
-  const { classes } = useStyles();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const query = `q[title_cont]=${title}&q[salary_gt]=${salary}&q[location_cont]=${location}`;
-        const jwtToken = Cookies.get("jwtToken");
-
-        if (!jwtToken) {
-          alert("Authorization token missing");
-          return;
-        }
-
-        const response = await axios.get(
-          `http://${subdomain}.lvh.me:3001/api/v1/jobs?page=${page}&${query}`,
-          {
-            headers: {
-              "Content-Type": "application/json; charset=UTF-8",
-              Authorization: `${jwtToken}`,
-            },
-          }
-        );
-
-        setJobs(convertJobsList(response.data.jobs));
-
-        if (response.data.meta) {
-          setTotalPages(response.data.meta.total_pages ?? 1);
-        } else {
-          setTotalPages(1);
-        }
-      } catch (e) {
-        alert("Error fetching jobs");
-      }
-    };
-
-    fetchData();
-  }, [title, location, salary, page]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [title, location, salary]);
-
-  const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) => {
-    setPage(value);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  const total = applications.length;
+  const pending = applications.filter((a) => a.status === "pending").length;
+  const rejected = applications.filter((a) => a.status === "rejected").length;
+  const hired = applications.filter((a) => a.status === "hired").length;
 
   return (
-    <>
-      <JobsFilter
-        location={location}
-        salary={salary}
-        title={title}
-        setLocation={setLocation}
-        setSalary={setSalary}
-        setTitle={setTitle}
+    <div className="container mt-5">
+      <SummaryCard
+        total={total}
+        pending={pending}
+        rejected={rejected}
+        hired={hired}
       />
 
       {user?.role === "company" && (
-        <div className="container my-3">
-          <a href="/jobs/new" className="btn btn-primary">
+        <div className="text-center my-5">
+          <h3 className="fw-bold text-primary">Add Job Now</h3>
+          <p className="text-muted">Post a new job.</p>
+          <a
+            className="btn btn-success px-4 py-2 rounded-3 shadow-sm"
+            onClick={() => {
+              window.location.href = `http://${subdomain}.lvh.me:3000/jobs/new`;
+            }}
+          >
             Add Job
           </a>
         </div>
       )}
-
-      <div className="container">
-        <div className="row">
-          {jobs.map((job) => (
-            <div key={job.id} className="col-md-6">
-              <JobsCard
-                id={job.id}
-                title={job.title}
-                description={job.description}
-                salary={job.salary}
-                location={job.location}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div style={{ display: "flex", justifyContent: "center", margin: "16px 0" }}>
-        <Pagination count={totalPages} page={page} onChange={handlePageChange} color="primary" />
-      </div>
-    </>
+    </div>
   );
 };
 
-export default JobsHome;
+export default CompaniesHome;

@@ -1,22 +1,35 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { applicationDetailsProps } from "../../interfaces/appInterface";
+import React from "react";
 import JobsHeader from "../atoms/jobsHeader";
 import ApplicationDetails from "../organisms/applicationDetails";
-import { useParams } from "react-router-dom";
-import UserProvider from "../../context/userContext";
+import { ApplicantProps } from "../../screens/applicationDetailsScreen";
 
-
-const ApplicationDetailsTemplate = () =>{
-    const { job_id, id } = useParams<{ job_id: string; id: string }>();
-
-    return(
-        <>
-            <JobsHeader text="Application" />
-            <ApplicationDetails jobId={Number(job_id)} id={Number(id)} />
-        </>
-    )
+export interface ApplicationDetailsProps {
+  jobId: number;
+  id: number;
+  applicant: ApplicantProps | null;
+  onChangeStatus: (changedStatus: number) => void;
+  onDelete: () => void;
 }
 
+const ApplicationDetailsTemplate: React.FC<ApplicationDetailsProps> = ({
+  jobId,
+  id,
+  applicant,
+  onChangeStatus,
+  onDelete,
+}) => {
+  return (
+    <>
+      <JobsHeader text="Application" />
+      <ApplicationDetails
+        jobId={jobId}
+        id={id}
+        applicant={applicant}
+        onChangeStatus={onChangeStatus}
+        onDelete={onDelete}
+      />
+    </>
+  );
+};
 
 export default ApplicationDetailsTemplate;

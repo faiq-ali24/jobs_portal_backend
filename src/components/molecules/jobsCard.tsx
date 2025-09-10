@@ -1,7 +1,7 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
-export interface jobProps {
+export interface JobProps {
   id: number;
   title: string;
   description: string;
@@ -9,7 +9,7 @@ export interface jobProps {
   location: string;
 }
 
-const JobsCard = ({ id, title, description, salary, location }: jobProps) => {
+const JobsCard: React.FC<JobProps> = ({ id, title, description, salary, location }) => {
   const navigate = useNavigate();
 
   const handleNav = () => {
@@ -17,7 +17,7 @@ const JobsCard = ({ id, title, description, salary, location }: jobProps) => {
   };
 
   return (
-    <div className="card shadow-lg border-0 mb-4 m-3 rounded-4 overflow-hidden">
+    <div className="card shadow-lg border-0 mb-4 m-3 rounded-4">
       <div className="card-header bg-gradient bg-primary text-white">
         <h5 className="mb-0 fw-bold">{title}</h5>
       </div>
@@ -31,9 +31,12 @@ const JobsCard = ({ id, title, description, salary, location }: jobProps) => {
 
         <div className="d-flex justify-content-between align-items-center mt-3">
           <span className="badge bg-success fs-6 px-3 py-2 shadow-sm">
-             {salary.toLocaleString()} PKR
+            {salary.toLocaleString()} PKR
           </span>
-          <button className="btn btn-outline-primary btn-sm px-3" onClick={handleNav}>
+          <button
+            className="btn btn-outline-primary btn-sm px-3"
+            onClick={handleNav}
+          >
             View Details
           </button>
         </div>

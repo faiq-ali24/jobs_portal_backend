@@ -1,23 +1,31 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { applicationsHomeProps } from "../../interfaces/appInterface";
 import JobsHeader from "../atoms/jobsHeader";
 import ApplicationsHome from "../organisms/applicationsHome";
-import { useParams } from "react-router-dom";
 
+import { ApplicationModel } from "../../screens/applicationsHomeScreen";
 
-
-
-const ApplicationsHomeTemplate = () =>{
-    const { job_id } = useParams<{ job_id: string }>();
-    return(
-        <>
-            <JobsHeader text={"Applications:" } />
-            <ApplicationsHome jobId={Number(job_id)} />
-        
-        </>
-    )
-
+interface ApplicationsHomeTemplateProps {
+  status: string;
+  setStatus: (v: string) => void;
+  applications: ApplicationModel[];
 }
 
+const ApplicationsHomeTemplate: React.FC<ApplicationsHomeTemplateProps> = ({
+  status,
+  setStatus,
+  applications,
+}) => {
+  return (
+    <>
+      <JobsHeader text={"Applications:"} />
+      <ApplicationsHome
+        status={status}
+        setStatus={setStatus}
+        applications={applications}
+      />
+    </>
+  );
+};
 
 export default ApplicationsHomeTemplate;

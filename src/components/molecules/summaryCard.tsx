@@ -4,10 +4,10 @@ interface SummaryCardProps {
   total: number;
   pending: number;
   rejected: number;
-  hired : number;
+  hired: number;
 }
 
-const SummaryCard = ({ total, pending, rejected , hired} : SummaryCardProps) => {
+const SummaryCard = ({ total, pending, rejected, hired }: SummaryCardProps) => {
   return (
     <div className="card shadow-sm border-0 rounded-4 mb-4">
       <div className="card-body">

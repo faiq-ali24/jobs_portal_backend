@@ -1,44 +1,47 @@
-import axios from 'axios';
-import Cookies from 'js-cookie';
-import { useState, useEffect, createContext, ReactNode, useContext } from 'react';
+import axios from "axios";
+import Cookies from "js-cookie";
+import {
+  useState,
+  useEffect,
+  createContext,
+  ReactNode,
+  useContext,
+} from "react";
 
-export interface userModel {
+export interface UserModel {
   id: number;
   name: string;
   role: string;
   email: string;
   bio: string;
   location: string;
+  subdomain: string | null;
 }
 
-interface userContextType {
-  user: userModel | null;
-  setUser: (user: userModel | null) => void;
+interface UserContextType {
+  user: UserModel | null;
+  setUser: (user: UserModel | null) => void;
 }
 
-export const userContext = createContext<userContextType | undefined>(undefined);
+export const userContext = createContext<UserContextType | undefined>(
+  undefined,
+);
 
 interface userProviderProps {
   children: ReactNode;
 }
 
 const UserProvider = ({ children }: userProviderProps) => {
-  const [user, setUser] = useState<userModel | null>(null);
+  const [user, setUser] = useState<UserModel | null>(null);
 
   useEffect(() => {
     function fetchUser() {
-      const jwtToken = Cookies.get('jwtToken');
+      const jwtToken = Cookies.get("jwtToken");
       if (!jwtToken) {
-        alert('Authorization token missing');
         return;
       }
-      const hostParts = window.location.hostname.split('.');
-      let subdomain: number | null = null;
-      if (hostParts.length > 2) {
-        const sub = parseInt(hostParts[0], 10);
-        if (!isNaN(sub)) subdomain = sub;
-      }
-      axios.get(`http://lvh.me:3001/api/v1/me`, {
+      axios
+        .get(`http://lvh.me:3001/api/v1/me`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `${jwtToken}`,
@@ -46,18 +49,19 @@ const UserProvider = ({ children }: userProviderProps) => {
         })
         .then((res) => {
           const attrs = res.data.data.attributes;
-        const userData: userModel = {
+          const userData: UserModel = {
             id: Number(attrs.id),
             name: attrs.name,
             role: attrs.role,
             email: attrs.email,
             bio: attrs.bio,
-            location: attrs.location
-        };
+            location: attrs.location,
+            subdomain: attrs.subdomain,
+          };
 
-        console.log("hello");
-        console.log(userData);
-        setUser(userData);
+          console.log("hello");
+          console.log(userData);
+          setUser(userData);
         })
         .catch((err) => {
           console.error("Error fetching user:", err);
@@ -66,7 +70,7 @@ const UserProvider = ({ children }: userProviderProps) => {
     }
 
     fetchUser();
-  }, [window.location.hostname.split('.')[0]]);
+  }, [window.location.hostname.split(".")[0]]);
 
   return (
     <userContext.Provider value={{ user, setUser }}>

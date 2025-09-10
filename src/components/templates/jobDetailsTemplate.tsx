@@ -1,20 +1,49 @@
-import React, { useEffect } from "react";
+import React from "react";
 import JobHeader from "../atoms/jobsHeader";
 import JobDetails from "../organisms/jobDetails";
-import UserProvider from "../../context/userContext";
-import { jobDetailsProps } from "../../interfaces/appInterface";
-import { useParams } from "react-router-dom";
+import { userProfile } from "../../interfaces/appInterface";
+import { JobData } from "../../screens/jobsDetailsScreen";
 
-
-const JobDetailsTemplate = () => {
-    const { id } = useParams<{ id: string }>();
-    return(
-        <>
-            <JobHeader text="Apply now!" />
-            <JobDetails id={Number(id)}/>
-        </>
-    )
+export interface UserModel {
+  id: number;
+  name: string;
+  role: string;
+  email: string;
+  bio: string;
+  location: string;
+  subdomain: string | null;
 }
 
+interface JobDetailsTemplateProps {
+  job: JobData;
+  user: UserModel | null;
+  onDelete: () => void;
+  onUpdate: () => void;
+  onViewApplications: () => void;
+  onApply: () => void;
+}
+
+const JobDetailsTemplate: React.FC<JobDetailsTemplateProps> = ({
+  job,
+  user,
+  onDelete,
+  onUpdate,
+  onViewApplications,
+  onApply,
+}) => {
+  return (
+    <>
+      <JobHeader text="Apply now!" />
+      <JobDetails
+        job={job}
+        user={user}
+        onDelete={onDelete}
+        onUpdate={onUpdate}
+        onViewApplications={onViewApplications}
+        onApply={onApply}
+      />
+    </>
+  );
+};
 
 export default JobDetailsTemplate;

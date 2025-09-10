@@ -1,81 +1,45 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import { useUser } from "../../context/userContext";
-import Cookies from "js-cookie";
 
-const ProfileSettings = () => {
-  const [name, setName] = useState("");
-  const [bio, setBio] = useState("");
-  const [location, setLocation] = useState("");
+interface ProfileSettingsProps {
+  initialName: string;
+  initialBio: string;
+  initialLocation: string;
+  onSubmit: (
+    name: string,
+    bio: string,
+    location: string,
+    picture: File | null,
+  ) => void;
+  onCancel: () => void;
+}
+
+const ProfileSettings: React.FC<ProfileSettingsProps> = ({
+  initialName,
+  initialBio,
+  initialLocation,
+  onSubmit,
+  onCancel,
+}) => {
+  const [name, setName] = useState<string>(initialName);
+  const [bio, setBio] = useState<string>(initialBio);
+  const [location, setLocation] = useState<string>(initialLocation);
   const [picture, setPicture] = useState<File | null>(null);
-  const {user} = useUser();
-  const navigate = useNavigate();
-  const hostParts = window.location.hostname.split('.');
-  let subdomain: string | null = null;
 
-  if (hostParts.length > 2) {
-    const sub = hostParts[0];
-    if (sub) subdomain = sub; 
-  }
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const jwtToken = Cookies.get("jwtToken");
-        if (!jwtToken) {
-          alert("Authorization token missing");
-          return;
-        }
+    setName(initialName);
+  }, [initialName]);
 
-        const res = await axios.get(`http://${subdomain}.lvh.me:3001/api/v1/me`, {
-          headers: {
-            Authorization: `${jwtToken}`,
-          },
-        });
+  useEffect(() => {
+    setBio(initialBio);
+  }, [initialBio]);
 
-        const _user = res.data.data.attributes;
-        setName(_user.name || "");
-        setBio(_user.bio || "");
-        setLocation(_user.location || "");
-      } 
-      catch (e) {
-        alert("Error occured on fetching user");
-      }
-    };
+  useEffect(() => {
+    setLocation(initialLocation);
+  }, [initialLocation]);
 
-    fetchUser();
-  }, []);
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    const jwtToken = Cookies.get("jwtToken");
-    if (!jwtToken) {
-      alert("Authorization token missing");
-      return;
-    }
-
-    try {
-      const formData = new FormData();
-      formData.append("user[name]", name);
-      formData.append("user[bio]", bio);
-      formData.append("user[location]", location);
-      if (picture) {
-        formData.append("user[picture]", picture);
-      }
-
-      await axios.patch("http://lvh.me:3001/signup", formData, {
-        headers: {
-          Authorization: `${jwtToken}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      toast.success("Profile updated successfully!");
-      navigate("/profile");
-    } catch (e) {
-      alert("Error occured updating profile.");
-    }
+    onSubmit(name, bio, location, picture);
   };
 
   return (
@@ -129,7 +93,7 @@ const ProfileSettings = () => {
           <button
             type="button"
             className="btn btn-secondary ms-2"
-            onClick={() => navigate("/profile")}
+            onClick={onCancel}
           >
             Cancel
           </button>

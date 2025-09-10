@@ -1,16 +1,22 @@
-import React, { useEffect, useState } from "react";
-import UserList from "../organisms/userList";
+import React from "react";
+import UserList, { User } from "../organisms/userList";
 import JobsHeader from "../atoms/jobsHeader";
 
-
-const UserListTemplate = () => {
-    return(
-        <>
-            <JobsHeader text="Users:" />
-            <UserList />
-        </>
-    )
+interface UserListTemplateProps {
+  users: User[];
+  onDelete: (id: string) => void;
 }
 
+const UserListTemplate: React.FC<UserListTemplateProps> = ({
+  users,
+  onDelete,
+}) => {
+  return (
+    <>
+      <JobsHeader text="Users:" />
+      <UserList users={users} onDelete={onDelete} />
+    </>
+  );
+};
 
 export default UserListTemplate;

@@ -3,7 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
-import { useUser } from "../../context/userContext";
+import { useUser } from "../context/userContext";
+import { Urls } from "../utils/urls";
 
 interface CreateUser {
   name: string;
@@ -12,7 +13,7 @@ interface CreateUser {
   role: string;
 }
 
-const CreateUser = () => {
+const CreateUserScreen = () => {
   const [data, setData] = useState<CreateUser>({
     name: "",
     email: "",
@@ -34,11 +35,10 @@ const CreateUser = () => {
     try {
       const token = Cookies.get("jwtToken");
       const response = await axios.post(
-        `http://lvh.me:3001/signup`,
+        Urls.signup(),
         { user: data },
         { headers: { Authorization: `${token}` } },
       );
-
       toast.success("User created successfully!");
       window.history.back();
     } catch (_e) {
@@ -119,4 +119,4 @@ const CreateUser = () => {
   );
 };
 
-export default CreateUser;
+export default CreateUserScreen;

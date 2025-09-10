@@ -1,49 +1,25 @@
-import axios from "axios";
-import Cookies from "js-cookie";
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 
-const PasswordUpdate = () => {
+interface PasswordUpdateProps {
+  onSubmit: (
+    currentPassword: string,
+    password: string,
+    passwordConfirmation: string,
+  ) => void;
+  onCancel: () => void;
+}
+
+const PasswordUpdate: React.FC<PasswordUpdateProps> = ({
+  onSubmit,
+  onCancel,
+}) => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
 
-  const navigate = useNavigate();
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    const jwtToken = Cookies.get("jwtToken");
-    if (!jwtToken) {
-      alert("Authorization token missing");
-      return;
-    }
-
-    try {
-      const res = await axios.patch(
-        "http://lvh.me:3001/signup",
-        {
-          user: {
-            current_password: currentPassword,
-            password: password,
-            password_confirmation: passwordConfirmation,
-          },
-        },
-        {
-          headers: {
-            Authorization: `${jwtToken}`,
-          },
-        }
-      );
-      Cookies.remove("jwtToken", { path: "/", domain: ".lvh.me" });
-      window.location.href = `http://lvh.me:3000/login`;
-      toast.success("Password updated successfully!");
-      navigate("/login");
-    } 
-    catch (e) {
-      alert("Error occured updating password.");
-    }
+    onSubmit(currentPassword, password, passwordConfirmation);
   };
 
   return (
@@ -90,7 +66,7 @@ const PasswordUpdate = () => {
           <button
             type="button"
             className="btn btn-secondary ms-2"
-            onClick={() => navigate("/profile")}
+            onClick={onCancel}
           >
             Cancel
           </button>

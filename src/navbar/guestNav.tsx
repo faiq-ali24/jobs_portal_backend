@@ -10,20 +10,25 @@ const GuestNav = () => {
   const token = Cookies.get("jwtToken");
   const { user } = useUser();
   const hostParts = window.location.hostname.split(".");
-  let subdomain: number | null = null;
+  let subdomain: string | null = null;
+
   if (hostParts.length > 2) {
-    const sub = parseInt(hostParts[0], 10);
-    if (!isNaN(sub)) subdomain = sub;
+    const sub = hostParts[0];
+    if (sub) subdomain = sub;
   }
   const handleLogout = () => {
-    Cookies.remove("jwtToken", { path: "/", domain: ".lvh.me" });
+    const jwtToken = Cookies.get("jwtToken");
+    axios.delete(`http://lvh.me:3001/logout`, {
+      headers: { Authorization: `${jwtToken}` },
+    });
+    Cookies.remove("jwtToken");
     window.location.href = `http://lvh.me:3000/login`;
   };
 
   return (
     <nav className="navbar bg-dark navbar-expand-lg navbar-dark">
       <div className="container">
-        <img src="./job-search.png" height="30" alt="Logo" loading="lazy" />
+        <img src="./job.svg" height="30" alt="Logo" loading="lazy" />
 
         <button
           className="navbar-toggler"
@@ -37,7 +42,10 @@ const GuestNav = () => {
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        <div className="collapse navbar-collapse mx-4" id="navbarButtonsExample">
+        <div
+          className="collapse navbar-collapse mx-4"
+          id="navbarButtonsExample"
+        >
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
               {user?.role == "candidate" ? (
@@ -46,7 +54,9 @@ const GuestNav = () => {
                   href="#"
                   onClick={(e) => {
                     e.preventDefault();
-                    window.location.href = `http://lvh.me:3000/home`;
+                    window.location.href = subdomain
+                      ? `http://${subdomain}.lvh.me:3000/home`
+                      : `http://lvh.me:3000/home`;
                   }}
                 >
                   Home
@@ -57,7 +67,7 @@ const GuestNav = () => {
                   href="#"
                   onClick={(e) => {
                     e.preventDefault();
-                    window.location.href = `http://lvh.me:3000/home`;
+                    window.location.href = `http://${subdomain}.lvh.me:3000/home`;
                   }}
                 >
                   Home
@@ -72,23 +82,29 @@ const GuestNav = () => {
                 <Link to="/login" className="btn btn-link px-3 me-2">
                   Login
                 </Link>
-                <Link to="/signup" className="btn btn-primary me-3">
-                  Sign up for free
-                </Link>
+                <a
+                  className="btn btn-primary me-3"
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.location.href = `http://lvh.me:3000/signup`;
+                  }}
+                >
+                  Sign Up
+                </a>
               </>
             ) : (
               <>
-                {(subdomain !== null || user?.role !== "candidate") ? (
+                {subdomain !== null || user?.role !== "candidate" ? (
                   <>
                     <a
                       className="btn btn-info mx-2"
                       href="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        if(user?.role === "candidate")
-                          navigate("/jobs");
-                        else if(user?.role === "company")
-                          window.location.href = `http://${user?.id}.lvh.me:3000/jobs`;
+                        if (user?.role === "candidate") navigate("/jobs");
+                        else if (user?.role === "company")
+                          window.location.href = `http://${subdomain}.lvh.me:3000/jobs`;
                         else
                           window.location.href = `http://admin.lvh.me:3000/jobs`;
                       }}
@@ -101,11 +117,11 @@ const GuestNav = () => {
                       href="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        if(user?.role === "candidate")
+                        if (user?.role === "candidate")
                           navigate("/all_applications");
-                        else if(user?.role === "company")
-                          window.location.href = `http://${user?.id}.lvh.me:3000/all_applications`;
-                        else 
+                        else if (user?.role === "company")
+                          window.location.href = `http://${subdomain}.lvh.me:3000/all_applications`;
+                        else
                           window.location.href = `http://admin.lvh.me:3000/all_applications`;
                       }}
                     >
@@ -114,25 +130,24 @@ const GuestNav = () => {
                   </>
                 ) : null}
 
-                { user?.role == "admin" ?
+                {user?.role === "admin" ? (
                   <a
-                        className="btn btn-primary mx-2"
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          window.location.href = `http://admin.lvh.me:3000/create_user`;
-                        }}
-                      >
-                        Create user
-                      </a>
-                    : null
-                }
+                    className="btn btn-primary mx-2"
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      window.location.href = `http://admin.lvh.me:3000/create_user`;
+                    }}
+                  >
+                    Create user
+                  </a>
+                ) : null}
 
-                {user?.role == "admin" || user?.role == "user_manager" || user?.role == "company_manager" ? (
+                {user?.role == "admin" ||
+                user?.role == "user_manager" ||
+                user?.role == "company_manager" ? (
                   <div>
-                    
-
-                      <a
+                    <a
                       className="btn btn-primary mx-2"
                       href="#"
                       onClick={(e) => {
@@ -143,7 +158,6 @@ const GuestNav = () => {
                       Users
                     </a>
                   </div>
-                    
                 ) : null}
 
                 <div className="dropdown">
@@ -162,37 +176,36 @@ const GuestNav = () => {
                   >
                     <li>
                       <a
-                          className="dropdown-item"
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            if(user?.role === "candidate")
-                              navigate("/profile");
-                            else if(user?.role === "company")
-                              window.location.href = `http://${user?.id}.lvh.me:3000/profile`;
-                            else 
-                              window.location.href = `http://admin.lvh.me:3000/profile`;
-                          }}
-                        >
-                          My Profile
+                        className="dropdown-item"
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (user?.role === "candidate") navigate("/profile");
+                          else if (user?.role === "company")
+                            window.location.href = `http://${subdomain}.lvh.me:3000/profile`;
+                          else
+                            window.location.href = `http://admin.lvh.me:3000/profile`;
+                        }}
+                      >
+                        My Profile
                       </a>
                     </li>
                     <li>
                       <a
-                      className="dropdown-item"
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if(user?.role === "candidate")
-                          navigate("/change_password");
-                        else if(user?.role === "company")
-                          window.location.href = `http://${user?.id}.lvh.me:3000/change_password`;
-                        else 
-                          window.location.href = `http://admin.lvh.me:3000/change_password`;
-                      }}
-                    >
-                      Change Password
-                    </a>
+                        className="dropdown-item"
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (user?.role === "candidate")
+                            navigate("/change_password");
+                          else if (user?.role === "company")
+                            window.location.href = `http://${subdomain}.lvh.me:3000/change_password`;
+                          else
+                            window.location.href = `http://admin.lvh.me:3000/change_password`;
+                        }}
+                      >
+                        Change Password
+                      </a>
                     </li>
                     <li>
                       <button

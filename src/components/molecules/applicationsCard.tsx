@@ -1,10 +1,35 @@
 import React from "react";
-import { applicationModel } from "../../interfaces/appInterface";
 import { useNavigate } from "react-router-dom";
 
 
-const ApplicationsCard = ({ id, name, age, yoe, status, email, resume, job_id }: applicationModel) => {
+export interface ApplicationModel {
+  id: number;
+  user_id: number;
+  job_id: number;
+  name: string;
+  age: number;
+  yoe: number;
+  status: string;
+  email: string;
+  resume: string;
+}
+
+const ApplicationsCard: React.FC<ApplicationModel> = ({
+  id,
+  name,
+  age,
+  yoe,
+  status,
+  email,
+  resume,
+  job_id,
+}) => {
   const navigate = useNavigate();
+
+  const handleNavigate = () => {
+    navigate(`/jobs/${job_id}/applications/${id}`);
+  };
+
   return (
     <div className="card shadow-lg rounded-lg border-1 mb-4 m-5">
       <div className="card-body">
@@ -15,7 +40,9 @@ const ApplicationsCard = ({ id, name, age, yoe, status, email, resume, job_id }:
         <p className="card-text">Years of Experience: {yoe}</p>
 
         <div className="d-flex justify-content-between align-items-center">
-          <button className="btn btn-primary btn-sm" onClick={() => {navigate(`/jobs/${job_id}/applications/${id}`)}}>Details</button>
+          <button className="btn btn-primary btn-sm" onClick={handleNavigate}>
+            Details
+          </button>
         </div>
       </div>
     </div>

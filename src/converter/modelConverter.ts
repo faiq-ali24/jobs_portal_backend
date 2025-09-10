@@ -1,9 +1,25 @@
-import { applicationModel } from "../interfaces/appInterface";
+export interface ApplicationModel {
+  id: number;
+  user_id: number;
+  job_id: number;
+  name: string;
+  age: number;
+  yoe: number;
+  status: string;
+  email: string;
+  resume: string;
+}
 
-import { jobModel } from "../interfaces/appInterface";
-
-
-
+export interface JobModel {
+  location: string;
+  salary: number;
+  title: string;
+  id: number;
+  description: string;
+  company_id: number;
+  brochure: string | undefined;
+  jobDescription: string | undefined;
+}
 
 interface ApplicationApiResponse {
   id: string;
@@ -19,7 +35,9 @@ interface ApplicationApiResponse {
   };
 }
 
-export function convertApplicationData(apiData: ApplicationApiResponse): applicationModel {
+export function convertApplicationData(
+  apiData: ApplicationApiResponse,
+): ApplicationModel {
   return {
     id: Number(apiData.id),
     user_id: apiData.attributes.user_id,
@@ -33,28 +51,20 @@ export function convertApplicationData(apiData: ApplicationApiResponse): applica
   };
 }
 
-export function convertApplicationsList(apiDataList: ApplicationApiResponse[]): applicationModel[] {
+export function convertApplicationsList(
+  apiDataList: ApplicationApiResponse[],
+): ApplicationModel[] {
   return apiDataList.map(convertApplicationData);
 }
-
-
-
-
-
-
-
-
-
-
 
 export interface Application {
   id: number;
   status: string;
 }
 
-
-
-export function convertApplication(apiData: ApplicationApiResponse): Application {
+export function convertApplication(
+  apiData: ApplicationApiResponse,
+): Application {
   return {
     id: Number(apiData.id),
     status: apiData.attributes.status,
@@ -66,12 +76,13 @@ interface CompanyApiResponse {
   attributes: {
     email: string;
     name: string;
+    subdomain: string;
   };
 }
 
-
 export interface Company {
   id: number;
+  subdomain: string;
   email: string;
   name: string;
 }
@@ -81,18 +92,15 @@ export function convertCompany(apiData: CompanyApiResponse): Company {
     id: Number(apiData.id),
     email: apiData.attributes.email,
     name: apiData.attributes.name,
+    subdomain: apiData.attributes.subdomain,
   };
 }
 
-
-
-
-
-export function convertCompaniesList(apiDataList: CompanyApiResponse[]): Company[] {
+export function convertCompaniesList(
+  apiDataList: CompanyApiResponse[],
+): Company[] {
   return apiDataList.map(convertCompany);
 }
-
-
 
 export interface CompanyApplication {
   id: number;
@@ -108,7 +116,9 @@ interface CompanyApplicationApiResponse {
   };
 }
 
-export function convertCompanyApplication(apiData: CompanyApplicationApiResponse): CompanyApplication {
+export function convertCompanyApplication(
+  apiData: CompanyApplicationApiResponse,
+): CompanyApplication {
   return {
     id: Number(apiData.id),
     company_id: apiData.attributes.company_id,
@@ -116,11 +126,11 @@ export function convertCompanyApplication(apiData: CompanyApplicationApiResponse
   };
 }
 
-export function convertCompanyApplicationsList(apiDataList: CompanyApplicationApiResponse[]): CompanyApplication[] {
+export function convertCompanyApplicationsList(
+  apiDataList: CompanyApplicationApiResponse[],
+): CompanyApplication[] {
   return apiDataList.map(convertCompanyApplication);
 }
-
-
 
 interface JobApiResponse {
   id: string | number;
@@ -135,7 +145,7 @@ interface JobApiResponse {
   };
 }
 
-export function convertJob(apiData: JobApiResponse): jobModel {
+export function convertJob(apiData: JobApiResponse): JobModel {
   return {
     id: Number(apiData.id),
     title: apiData.attributes.title,
@@ -148,12 +158,9 @@ export function convertJob(apiData: JobApiResponse): jobModel {
   };
 }
 
-export function convertJobsList(apiDataList: JobApiResponse[]): jobModel[] {
+export function convertJobsList(apiDataList: JobApiResponse[]): JobModel[] {
   return apiDataList.map(convertJob);
 }
-
-
-
 
 export interface User {
   id: string;
