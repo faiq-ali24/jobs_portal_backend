@@ -32,7 +32,6 @@ module Api
       end
 
       def update
-
         if params[:job][:document].present?
           @job.build_document(file: params[:job][:document])
         end
@@ -51,7 +50,15 @@ module Api
       private
 
       def job_params
-        params.require(:job).permit(:title, :description, :salary, :location)
+        params.require(:job).permit(
+          :title,
+          :description,
+          :salary,
+          :location,
+          :minimum_experience_years,
+          required_skills: [],
+          preferred_skills: []
+        )
       end
 
       def pagination_meta(collection)

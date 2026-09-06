@@ -1,6 +1,7 @@
 class JobSerializer
   include JSONAPI::Serializer
-  attributes :title, :description, :salary, :location, :company_id
+  attributes :title, :description, :salary, :location, :company_id,
+             :required_skills, :preferred_skills, :minimum_experience_years
 
   attribute :brochure do |job|
     if job.document&.file&.attached?

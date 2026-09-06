@@ -8,6 +8,8 @@ class Application < ApplicationRecord
 
   validate :company_matches_job
 
+  after_create_commit :enqueue_application_process
+
   enum status: {pending: 0, rejected: 1, hired: 2}
 
   def self.ransackable_attributes(auth_object = nil)
@@ -22,4 +24,7 @@ class Application < ApplicationRecord
     end
   end
 
+  def enqueue_application_process
+    ResumeProcessingJob.perform_later(id)
+  end
 end

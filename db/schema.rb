@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_09_06_123907) do
+ActiveRecord::Schema.define(version: 2026_09_06_152749) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -56,6 +56,12 @@ ActiveRecord::Schema.define(version: 2026_09_06_123907) do
     t.integer "status", default: 0, null: false
     t.string "email", default: "", null: false
     t.integer "company_id", null: false
+    t.decimal "match_score", precision: 5, scale: 2
+    t.jsonb "score_breakdown", default: {}, null: false
+    t.string "scoring_status", default: "pending", null: false
+    t.datetime "scored_at"
+    t.text "scoring_error"
+    t.string "scoring_version"
     t.index ["company_id"], name: "index_applications_on_company_id"
   end
 
@@ -76,6 +82,11 @@ ActiveRecord::Schema.define(version: 2026_09_06_123907) do
     t.integer "company_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "required_skills", default: [], null: false, array: true
+    t.string "preferred_skills", default: [], null: false, array: true
+    t.decimal "minimum_experience_years", precision: 4, scale: 1
+    t.index ["preferred_skills"], name: "index_jobs_on_preferred_skills", using: :gin
+    t.index ["required_skills"], name: "index_jobs_on_required_skills", using: :gin
   end
 
   create_table "users", force: :cascade do |t|
