@@ -1,20 +1,10 @@
 class Application < ApplicationRecord
 	belongs_to :user 
   belongs_to :job
-  belongs_to :company, class_name: "User"
+  acts_as_tenant :company, class_name: "User"
 
   has_one :document, as: :documentable, dependent: :destroy
   validates :document, presence: :true
-
-
-  default_scope do
-    # byebug
-    if Current.company.present?
-      where(company_id: Current.company.id)
-    else
-      all
-    end
-  end
 
   validate :company_matches_job
 

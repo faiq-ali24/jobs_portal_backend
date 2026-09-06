@@ -69,6 +69,3 @@ coverage/
 
 /storage/*
 !/storage/.keep
-
-/test/*
-!/test/.keep

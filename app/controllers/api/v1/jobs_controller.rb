@@ -5,9 +5,10 @@ module Api
       load_and_authorize_resource
 
       def index
-        # byebug
+        @jobs = @jobs.ranked_search(params[:search]) if params[:search].present?
+
         @q = @jobs.ransack(params[:q])
-        @jobs = @q.result(distinct: true).page(params[:page]).per(params[:per_page] || 10)
+        @jobs = @q.result.page(params[:page]).per(params[:per_page] || 10)
         render json: {
           jobs: JobSerializer.new(@jobs).serializable_hash[:data],
           meta: pagination_meta(@jobs)
@@ -26,15 +27,9 @@ module Api
         end
       end
 
-
-
       def show
-        # byebug
         render json: JobSerializer.new(@job).serializable_hash, status: :ok
       end
-
-
-
 
       def update
 
@@ -48,25 +43,16 @@ module Api
         end
       end
 
-
-
-
       def destroy
         @job.destroy
         head :no_content
       end
-
-
-
 
       private
 
       def job_params
         params.require(:job).permit(:title, :description, :salary, :location)
       end
-
-
-
 
       def pagination_meta(collection)
         {

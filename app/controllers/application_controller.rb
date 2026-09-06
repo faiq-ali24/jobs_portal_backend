@@ -13,12 +13,18 @@ class ApplicationController < ActionController::API
   private
 
   def check_tenant
-    # byebug
-    if current_user.company? && (
-        (Current.company != nil &&
-           current_user.id != Current.company.id) )
-        render json: { error: "Wrong subdomain" }, status: :unauthorized
-     end
+    if request.subdomain.to_s == "admin" && !management_user?
+      return render json: { error: "Forbidden" }, status: :forbidden
+    end
+
+    tenant = ActsAsTenant.current_tenant
+    return unless current_user.company? && tenant.present? && current_user.id != tenant.id
+
+    render json: { error: "Wrong subdomain" }, status: :unauthorized
+  end
+
+  def management_user?
+    current_user.admin? || current_user.company_manager? || current_user.user_manager?
   end
 
   def permit_parameters

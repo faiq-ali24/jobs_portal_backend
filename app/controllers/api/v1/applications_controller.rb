@@ -42,11 +42,11 @@ module Api
 
       def get_all # http://127.0.0.1:3001/api/v1/applications/get_all
         # byebug
-        if Current.company == nil || current_user.company?
+        if current_tenant.nil? || current_user.company?
           @applications = Application.accessible_by(current_ability)
         else
           @applications = Application.joins(:job)
-                         .where(jobs: { company_id: Current.company.id }, user_id: current_user.id)
+                         .where(jobs: { company_id: current_tenant.id }, user_id: current_user.id)
         end
         @q = @applications.ransack(params[:q])
         @applications = @q.result(distinct: true)
@@ -61,10 +61,10 @@ module Api
 
       def change_status
         # byebug
-        if Current.company == nil
+        if current_tenant.nil?
           return render json: { error: "Forbidden access" }, status: :forbidden
         end
-        @application = Application.find_by(id: params[:id], company_id: Current.company.id)
+        @application = Application.find_by(id: params[:id], company_id: current_tenant.id)
         authorize! :change_status, @application
         
         if @application.update(status: params[:status])

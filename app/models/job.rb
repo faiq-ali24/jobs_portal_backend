@@ -1,16 +1,29 @@
 class Job < ApplicationRecord
-  belongs_to :company, class_name: "User"
+  include PgSearch::Model
+
+  acts_as_tenant :company, class_name: "User"
+
+  pg_search_scope :ranked_search,
+                  against: {
+                    title: 'A',
+                    description: 'B',
+                    location: 'C'
+                  },
+                  using: {
+                    tsearch: {
+                      dictionary: 'english',
+                      prefix: true,
+                      normalization: 2
+                    },
+                    trigram: {
+                      threshold: 0.2,
+                      only: %i[title location]
+                    }
+                  },
+                  ranked_by: ':tsearch + (0.25 * :trigram)',
+                  order_within_rank: 'jobs.created_at DESC'
 
   has_one :document, as: :documentable, dependent: :destroy
-
-  default_scope do
-    # byebug
-    if Current.company.present?
-      where(company_id: Current.company.id)
-    else
-      all
-    end
-  end
 
   validates :title, :description, :location, presence: true
 
