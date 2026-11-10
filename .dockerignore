@@ -1,0 +1,8 @@
+.git
+log/*
+tmp/*
+storage/*
+# Secrets are passed in at runtime via deploy/.env, never baked into the image
+config/master.key
+.env*
+deploy/

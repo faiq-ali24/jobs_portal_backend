@@ -52,7 +52,8 @@ gem 'devise-jwt'
 gem 'jsonapi-serializer'
 gem 'active_model_serializers', '~> 0.10.0'
 gem 'kaminari'
-gem 'mailcatcher'
+gem 'mailcatcher', group: :development
 gem "rubocop", require: false
 gem 'sidekiq', '~> 7.3.9'
 gem 'pdf-reader'
+gem 'aws-sdk-s3', require: false

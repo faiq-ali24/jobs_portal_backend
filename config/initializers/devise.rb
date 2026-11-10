@@ -307,7 +307,8 @@ Devise.setup do |config|
 
 
 config.jwt do |jwt|
-    jwt.secret = Rails.application.credentials.devise_jwt_secret_key!
+    # Production sets DEVISE_JWT_SECRET_KEY in the environment; development falls back to credentials.
+    jwt.secret = ENV.fetch("DEVISE_JWT_SECRET_KEY") { Rails.application.credentials.devise_jwt_secret_key! }
     jwt.dispatch_requests = [
       ['POST', %r{^/login$}]
     ]

@@ -30,8 +30,14 @@ Rails.application.configure do
   # config.action_dispatch.x_sendfile_header = 'X-Sendfile' # for Apache
   # config.action_dispatch.x_sendfile_header = 'X-Accel-Redirect' # for NGINX
 
-  # Store uploaded files on the local file system (see config/storage.yml for options).
-  config.active_storage.service = :local
+  # Store uploaded files on S3 (see config/storage.yml). Set ACTIVE_STORAGE_SERVICE=local to use the disk.
+  config.active_storage.service = ENV.fetch("ACTIVE_STORAGE_SERVICE", "amazon").to_sym
+
+  # Only answer requests for our own domain and its tenant subdomains (e.g. 5.example.com).
+  config.hosts << ".#{ENV['APP_DOMAIN']}" if ENV["APP_DOMAIN"].present?
+
+  # Number of labels in the TLD, used to read the tenant subdomain (1 for example.com, 2 for example.co.uk).
+  config.action_dispatch.tld_length = ENV.fetch("TLD_LENGTH", 1).to_i
 
   # Mount Action Cable outside main process or domain.
   # config.action_cable.mount_path = nil
@@ -39,7 +45,8 @@ Rails.application.configure do
   # config.action_cable.allowed_request_origins = [ 'http://example.com', /http:\/\/example.*/ ]
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  # config.force_ssl = true
+  # nginx terminates TLS and forwards X-Forwarded-Proto, so Rails can still tell the request was HTTPS.
+  config.force_ssl = ENV.fetch("FORCE_SSL", "true") == "true"
 
   # Include generic and useful information about system operation, but avoid logging too much
   # information to avoid inadvertent exposure of personally identifiable information (PII).
@@ -56,6 +63,21 @@ Rails.application.configure do
   # config.active_job.queue_name_prefix = "jobs_portal_production"
 
   config.action_mailer.perform_caching = false
+
+  # Send mail over SMTP (e.g. Amazon SES) when SMTP_ADDRESS is set; otherwise mail is logged and dropped.
+  if ENV["SMTP_ADDRESS"].present?
+    config.action_mailer.delivery_method = :smtp
+    config.action_mailer.smtp_settings = {
+      address: ENV["SMTP_ADDRESS"],
+      port: ENV.fetch("SMTP_PORT", 587).to_i,
+      user_name: ENV["SMTP_USERNAME"],
+      password: ENV["SMTP_PASSWORD"],
+      authentication: :login,
+      enable_starttls_auto: true
+    }
+  else
+    config.action_mailer.delivery_method = :test
+  end
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.

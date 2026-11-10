@@ -1,0 +1,77 @@
+# Production stack for a single EC2 host. Run from this directory:
+#   docker compose up -d --build
+# Expects the frontend repo cloned next to this one (../../job_portal_react) and a .env file here.
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redisdata:/data
+
+  web:
+    build: ..
+    image: jobs_portal_backend
+    restart: unless-stopped
+    env_file: .env
+    # Creates the database / runs pending migrations on every deploy, then starts puma
+    command: sh -c "bundle exec rails db:prepare && bundle exec puma -C config/puma.rb"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  sidekiq:
+    build: ..
+    image: jobs_portal_backend
+    restart: unless-stopped
+    env_file: .env
+    command: bundle exec sidekiq -C config/sidekiq.yml
+    depends_on:
+      - web
+
+  nginx:
+    build:
+      context: ${FRONTEND_PATH:-../../job_portal_react}
+      args:
+        REACT_APP_BASE_DOMAIN: ${APP_DOMAIN}
+    restart: unless-stopped
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN}
+      NGINX_ENVSUBST_FILTER: APP_DOMAIN
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # The official nginx image renders templates/*.template into conf.d, substituting ${APP_DOMAIN}
+      - ./nginx/templates:/etc/nginx/templates:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+    depends_on:
+      - web
+
+  # One-off: obtains/renews the wildcard certificate via a Route 53 DNS challenge.
+  # Not started by `up`; run with `docker compose run --rm certbot ...` (see deploy/README.md).
+  certbot:
+    image: certbot/dns-route53:latest
+    profiles: ["tools"]
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+
+volumes:
+  pgdata:
+  redisdata:

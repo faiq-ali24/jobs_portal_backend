@@ -69,3 +69,7 @@ coverage/
 
 /storage/*
 !/storage/.keep
+
+# Deployment secrets and certificates (see deploy/.env.example)
+/deploy/.env
+/deploy/certbot/
